@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://goglimp.com/sitemap.xml
