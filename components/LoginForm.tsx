@@ -75,7 +75,7 @@ export default function LoginForm() {
               window.open(`/app/launch?nonce=${currentNonce}`, "_blank");
 
               // Redirect to profile
-              router.push("/profile");
+              router.push("/dashboard");
               return;
             } else {
               // User not entitled - redirect to pricing

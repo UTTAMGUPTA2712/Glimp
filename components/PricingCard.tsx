@@ -125,7 +125,7 @@ export default function PricingCard({
                 // window.open(`/app/launch?nonce=${nonce}`, "_blank");
 
                 // Redirect to profile page using window.location
-                window.location.href = "/profile";
+                router.push("/dashboard");
               } else {
                 console.error("❌ Payment verification failed:", verifyData);
                 throw new Error("Payment verification failed");
