@@ -1,61 +1,79 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { getDeviceLogin, markDeviceLoginClaimed } from '@/lib/database';
+import { createDecipheriv } from 'crypto';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
+function decryptPayload(encryptedData: string): string {
+  const deviceEncKey = process.env.DEVICE_ENC_KEY;
+  if (!deviceEncKey) {
+    throw new Error('DEVICE_ENC_KEY not configured');
+  }
+
+  const key = Buffer.from(deviceEncKey, 'base64');
+  
+  // Extract IV (24 chars), authTag (32 chars), and encrypted data
+  const iv = Buffer.from(encryptedData.slice(0, 24), 'hex');
+  const authTag = Buffer.from(encryptedData.slice(24, 56), 'hex');
+  const encrypted = encryptedData.slice(56);
+  
+  const decipher = createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(authTag);
+  
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  
+  return decrypted;
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const nonce = searchParams.get('nonce')
+    const { searchParams } = new URL(request.url);
+    const nonce = searchParams.get('nonce');
 
     if (!nonce) {
-      return NextResponse.json(
-        { error: 'Nonce required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing nonce' }, { status: 400 });
     }
 
-    // In real implementation:
-    // 1. Check if nonce exists and not expired
-    // 2. Return encrypted refresh token if ready (once only)
-    // 3. Return 204 if still pending
-    // 4. Return 410 if expired
+    // Get device login entry
+    const deviceLogin = await getDeviceLogin(nonce);
 
-    // Mock implementation - simulate different states
-    const random = Math.random()
-
-    if (random < 0.3) {
-      // 30% chance - still pending
-      return new NextResponse(null, { 
-        status: 204,
-        headers: {
-          'Cache-Control': 'no-store',
-        }
-      })
-    } else if (random < 0.9) {
-      // 60% chance - return token
-      return NextResponse.json(
-        { refresh_token: 'mock_encrypted_token_' + Date.now() },
-        { 
-          status: 200,
-          headers: {
-            'Cache-Control': 'no-store',
-          }
-        }
-      )
-    } else {
-      // 10% chance - expired
-      return NextResponse.json(
-        { error: 'Nonce expired' },
-        { 
-          status: 410,
-          headers: {
-            'Cache-Control': 'no-store',
-          }
-        }
-      )
+    if (!deviceLogin) {
+      // Device login not found or expired
+      return NextResponse.json({ error: 'Device login expired or not found' }, { status: 410 });
     }
+
+    if (deviceLogin.claimed) {
+      // Already claimed
+      return NextResponse.json({ error: 'Device login already claimed' }, { status: 410 });
+    }
+
+    if (deviceLogin.status === 'pending') {
+      // Still waiting for user to complete flow
+      return new Response(null, { status: 204 });
+    }
+
+    if (deviceLogin.status === 'ready' && deviceLogin.payload) {
+      // Mark as claimed and return the refresh token
+      await markDeviceLoginClaimed(nonce);
+      
+      try {
+        const decryptedPayload = decryptPayload(deviceLogin.payload);
+        const payload = JSON.parse(decryptedPayload);
+        return NextResponse.json({ refresh_token: payload.refresh_token });
+      } catch (parseError) {
+        console.error('Error parsing device login payload:', parseError);
+        return NextResponse.json({ error: 'Invalid payload format' }, { status: 500 });
+      }
+    }
+
+    // Fallback - should not reach here
+    return new Response(null, { status: 204 });
+
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to poll device status' },
-      { status: 500 }
-    )
+    console.error('Device poll error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

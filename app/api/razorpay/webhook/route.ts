@@ -1,52 +1,107 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { createHmac } from 'crypto';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
-    // In real implementation:
-    // 1. Verify HMAC signature with RAZORPAY_WEBHOOK_SECRET
-    // 2. Handle subscription.activated and subscription.cancelled events
-    // 3. Update user profile accordingly
+    // Get raw body for signature verification
+    const rawBody = await request.text();
+    const signature = request.headers.get('x-razorpay-signature');
 
-    const text = await request.text()
-    const signature = request.headers.get('x-razorpay-signature')
-
-    // Mock webhook verification
     if (!signature) {
-      return NextResponse.json(
-        { error: 'Missing signature' },
-        { status: 400 }
-      )
+      console.error('Missing Razorpay signature header');
+      return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
 
-    // Parse webhook payload
-    const payload = JSON.parse(text)
-    const event = payload.event
-
-    console.log('Webhook received:', event)
-
-    // Handle different events
-    switch (event) {
-      case 'subscription.activated':
-        // Update user: status=active, plan=pro, set current_period_end
-        break
-      case 'subscription.cancelled':
-        // Update user: status=cancelled
-        break
+    // Get webhook secret
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error('Missing RAZORPAY_WEBHOOK_SECRET');
+      return NextResponse.json({ error: 'Webhook configuration error' }, { status: 500 });
     }
 
-    return NextResponse.json(
-      { received: true },
-      { 
-        status: 200,
-        headers: {
-          'Cache-Control': 'no-store',
-        }
+    // Verify signature using HMAC-SHA256
+    const expectedSignature = createHmac('sha256', webhookSecret)
+      .update(rawBody)
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      console.error('Invalid webhook signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    }
+
+    // Parse the webhook payload
+    const payload = JSON.parse(rawBody);
+    const { event, payload: eventPayload } = payload;
+
+    // Create Supabase client with service role
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    if (event === 'subscription.activated') {
+      const subscription = eventPayload.subscription;
+      const entity = subscription.entity;
+      
+      // Extract user ID from notes
+      const userId = entity.notes?.userId;
+      if (!userId) {
+        console.error('No userId found in subscription notes');
+        return NextResponse.json({ received: true });
       }
-    )
+
+      // Upsert profile with active subscription details
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          status: 'active',
+          plan: 'pro-monthly',
+          current_period_end: new Date(entity.current_end * 1000).toISOString(),
+          stripe_subscription_id: entity.id
+        }, {
+          onConflict: 'id'
+        });
+
+      if (upsertError) {
+        console.error('Error upserting profile on subscription activation:', upsertError);
+      } else {
+        console.log('Profile updated for subscription activation:', userId);
+      }
+
+    } else if (event === 'subscription.cancelled') {
+      const subscription = eventPayload.subscription;
+      const entity = subscription.entity;
+      
+      // Extract user ID from notes
+      const userId = entity.notes?.userId;
+      if (!userId) {
+        console.error('No userId found in subscription notes');
+        return NextResponse.json({ received: true });
+      }
+
+      // Update profile status to cancelled
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ status: 'cancelled' })
+        .eq('id', userId);
+
+      if (updateError) {
+        console.error('Error updating profile on subscription cancellation:', updateError);
+      } else {
+        console.log('Profile updated for subscription cancellation:', userId);
+      }
+    }
+
+    return NextResponse.json({ received: true });
+
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    )
+    console.error('Webhook processing error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

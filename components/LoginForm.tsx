@@ -16,12 +16,10 @@ export default function LoginForm() {
   useEffect(() => {
     const handleLoginFlow = async () => {
       try {
-        // Get or generate nonce
         const nonceParam = searchParams.get("nonce");
         const currentNonce = nonceParam || uuidv4();
         setNonce(currentNonce);
 
-        // Check if user is already logged in
         const {
           data: { session },
           error: sessionError,

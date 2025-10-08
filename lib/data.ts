@@ -5,7 +5,7 @@ export const benefits = [
     icon: "preparation"
   },
   {
-    title: "Capture", 
+    title: "Capture",
     description: "Seamlessly record and capture every detail of your interview sessions with smart audio processing",
     icon: "capture"
   },
@@ -28,7 +28,7 @@ export const howItWorks = [
     description: "Create your account and download the desktop toolbar for seamless integration"
   },
   {
-    step: 2, 
+    step: 2,
     title: "Prepare & Capture",
     description: "Use AI assistance to prepare and capture your interviews with smart recording"
   },
@@ -48,7 +48,7 @@ export const testimonials = [
   },
   {
     name: "Michael Rodriguez",
-    role: "Product Manager", 
+    role: "Product Manager",
     content: "The interview summaries and action items saved me hours of preparation time.",
     rating: 5
   },
@@ -89,31 +89,31 @@ export const faqs = [
 
 export const pricingPlans = [
   {
+    name: "Free",
+    price: "₹0",
+    period: "forever",
+    features: [
+      "AI Interview Assistant",
+      "Real-time Capture",
+      "Smart Summarization",
+      "Action Recommendations",
+      "3 Sessions per month",
+      "Email Support"
+    ]
+  },
+  {
     name: "Pro",
     price: "₹1,599",
     period: "month",
     features: [
       "AI Interview Assistant",
-      "Real-time Capture", 
+      "Real-time Capture",
       "Smart Summarization",
       "Action Recommendations",
       "Unlimited Sessions",
       "Priority Support"
     ]
   },
-  {
-    name: "Enterprise",
-    price: "Contact Sales",
-    period: "",
-    features: [
-      "Everything in Pro",
-      "Multi-seat Management",
-      "SSO Integration", 
-      "Admin Dashboard",
-      "Custom Integrations",
-      "Dedicated Support"
-    ]
-  }
 ];
 
 export const supportQAs = [
@@ -122,7 +122,7 @@ export const supportQAs = [
     answer: "You can reset your password by clicking 'Forgot Password' on the login page and following the email instructions."
   },
   {
-    question: "The desktop toolbar won't connect. What should I do?", 
+    question: "The desktop toolbar won't connect. What should I do?",
     answer: "First, ensure you're logged into your account on the website. Then try re-pairing by going to your profile and clicking 'Pair New Device'."
   },
   {
@@ -153,7 +153,7 @@ export const mockUsers = [
     entitled: true
   },
   {
-    id: "user-2", 
+    id: "user-2",
     email: "jane@example.com",
     plan: null,
     status: "inactive",

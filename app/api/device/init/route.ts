@@ -1,26 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { createDeviceLogin } from '@/lib/database';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    // Generate a unique nonce
-    const nonce = 'nonce_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+    const body = await request.json();
+    const { nonce } = body;
 
-    // In real implementation, store nonce in database with expiry
-    // For now, just return the nonce
+    if (!nonce) {
+      return NextResponse.json({ error: 'Missing nonce' }, { status: 400 });
+    }
 
-    return NextResponse.json(
-      { ok: true, nonce },
-      { 
-        status: 200,
-        headers: {
-          'Cache-Control': 'no-store',
-        }
-      }
-    )
+    // Set expiration to 10 minutes from now
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Create device login entry with empty payload initially
+    const success = await createDeviceLogin(nonce, '', expiresAt);
+
+    if (!success) {
+      return NextResponse.json({ error: 'Failed to initialize device login' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to generate nonce' },
-      { status: 500 }
-    )
+    console.error('Device init error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
