@@ -6,17 +6,6 @@ import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 export default function LoginForm() {
-  // const [isLoading, setIsLoading] = useState(false)
-
-  // const handleGoogleLogin = async () => {
-  //   setIsLoading(true)
-  //   // Simulate OAuth flow
-  //   setTimeout(() => {
-  //     // Generate mock nonce and redirect to app/start
-  //     const nonce = 'mock-nonce-' + Date.now()
-  //     window.location.href = `/app/start?nonce=${nonce}&code=mock-auth-code&state=mock-state`
-  //   }, 1000)
-  // }
   const searchParams = useSearchParams();
   const router = useRouter();
   const [nonce, setNonce] = useState<string>("");

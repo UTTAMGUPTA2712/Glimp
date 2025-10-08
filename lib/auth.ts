@@ -5,6 +5,7 @@ import { getProfile, type Profile, isEntitled } from "./database"
 
 export interface User {
   id: string
+  name?: string | null
   email: string
   plan: string | null
   status: 'active' | 'inactive' | 'trialing' | 'cancelled' | 'deleted'
