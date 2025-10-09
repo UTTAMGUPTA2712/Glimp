@@ -50,7 +50,7 @@ export default function Header() {
                   href="/dashboard"
                   className="text-gray-600 hover:text-gray-900"
                 >
-                  {session.user_metadata?.full_name || session.email}
+                 Dashboard
                 </Link>
                 <button onClick={handleSignOut} className="btn btn-primary">
                   Logout

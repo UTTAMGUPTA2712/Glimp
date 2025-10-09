@@ -30,20 +30,6 @@ export default function PlanCard() {
           email: user?.email || null,
           userId: user?.id || null
         })
-        const res = await fetch('/api/license/entitlement', {
-          cache: 'no-store',
-          headers: accessToken ? {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          } : undefined
-        })
-        if (!res.ok) {
-          throw new Error('Failed to load plan information')
-        }
-        const json: EntitlementResponse = await res.json()
-        if (mounted) {
-          setData(json)
-        }
       } catch (e: any) {
         if (mounted) setError(e?.message || 'Unexpected error')
       } finally {

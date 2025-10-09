@@ -53,59 +53,8 @@ export default function ClientCallback() {
             userId: data.user?.id,
             hasSession: !!data.session
           });
-
-          // Get stored nonce from sessionStorage
-          const storedNonce = sessionStorage.getItem('oauth_nonce');
-          const nonce = storedNonce || 'generated-' + Date.now();
-          
-          // Clear the stored nonce
-          if (storedNonce) {
-            sessionStorage.removeItem('oauth_nonce');
-          }
-
-          console.log('Redirecting to /app/start with nonce:', nonce);
+    
           setStatus('Redirecting...');
-          
-          // Check entitlement and redirect accordingly
-          const entitlementResponse = await fetch('/api/license/entitlement', {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (entitlementResponse.ok) {
-            const entitlementData = await entitlementResponse.json();
-            console.log('Entitlement data:', entitlementData);
-
-            if (entitlementData.entitled) {
-              // User has active subscription - complete device flow and redirect to profile
-              try {
-                await fetch('/api/device/complete', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                  },
-                  body: JSON.stringify({ nonce }),
-                });
-              } catch (deviceError) {
-                console.error('Device completion error:', deviceError);
-              }
-
-              // Open toolbar in new tab
-              window.open(`/app/launch?nonce=${nonce}`, '_blank');
-              
-              // Redirect to profile
-              router.push('/profile');
-            } else {
-              // User not entitled - redirect to pricing
-              router.push(`/pricing?nonce=${nonce}`);
-            }
-          } else {
-            // If entitlement check fails, redirect to pricing to be safe
-            router.push(`/pricing?nonce=${nonce}`);
-          }
           return;
         }
 
@@ -120,26 +69,7 @@ export default function ClientCallback() {
         }
 
         if (data.session) {
-          console.log('Existing session found, redirecting to app');
-          const nonce = sessionStorage.getItem('oauth_nonce') || 'generated-' + Date.now();
-          sessionStorage.removeItem('oauth_nonce');
-          
-          // Check entitlement for existing session
-          const entitlementResponse = await fetch('/api/license/entitlement');
-          if (entitlementResponse.ok) {
-            const entitlementData = await entitlementResponse.json();
-            if (entitlementData.entitled) {
-              window.open(`/app/launch?nonce=${nonce}`, '_blank');
-              router.push('/profile');
-            } else {
-              router.push(`/pricing?nonce=${nonce}`);
-            }
-          } else {
-            router.push(`/pricing?nonce=${nonce}`);
-          }
-        } else {
-          console.log('No session found, redirecting to login');
-          setError('No authentication session found');
+          router.push('/dashboard');
         }
 
       } catch (error) {
