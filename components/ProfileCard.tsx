@@ -1,105 +1,113 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { mockUsers } from '@/lib/data'
+import { useEffect, useState } from "react";
+import { getSession } from "@/lib/auth";
+
+type ProfileData = {
+  name: string | null;
+  email: string | null;
+  userId: string | null;
+};
 
 export default function ProfileCard() {
-  // Mock current user (in real app, this would come from auth context)
-  const [currentUser] = useState(mockUsers[0]) // Use active user for demo
-  const [isLoading, setIsLoading] = useState(false)
+  const [profile, setProfile] = useState<ProfileData>({
+    name: null,
+    email: null,
+    userId: null,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription?')) return
+  useEffect(() => {
+    let mounted = true;
 
-    setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      alert('Subscription cancelled successfully')
-      setIsLoading(false)
-    }, 1000)
+    async function loadProfile() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const session = await getSession();
+        const user = session?.user;
+
+        if (mounted) {
+          setProfile({
+            name:
+              (user?.user_metadata as any)?.full_name ||
+              (user?.user_metadata as any)?.name ||
+              null,
+            email: user?.email || null,
+            userId: user?.id || null,
+          });
+        }
+      } catch (e: any) {
+        if (mounted) {
+          setError(e?.message || "Failed to load profile");
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-1/3" />
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-100 rounded w-1/4" />
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+            <div className="h-4 bg-gray-100 rounded w-1/4" />
+            <div className="h-4 bg-gray-200 rounded w-2/3" />
+            <div className="h-4 bg-gray-100 rounded w-1/4" />
+            <div className="h-4 bg-gray-200 rounded w-3/4" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const handleDeleteAccount = async () => {
-    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return
-
-    setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      alert('Account deletion initiated')
-      setIsLoading(false)
-    }, 1000)
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold mb-2">Profile</h2>
+        <p className="text-red-600 mb-4">{error}</p>
+        <a href="/login" className="btn btn-primary">
+          Login
+        </a>
+      </div>
+    );
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      {/* Account Information */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
-        <div className="space-y-3">
-          <div>
-            <label className="text-sm font-medium text-gray-500">Email</label>
-            <p className="text-gray-900">{currentUser.email}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-500">Plan</label>
-            <p className="text-gray-900 capitalize">{currentUser.plan || 'No active plan'}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-500">Status</label>
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-              currentUser.status === 'active' 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-red-100 text-red-800'
-            }`}>
-              {currentUser.status}
-            </span>
-          </div>
-          {currentUser.current_period_end && (
-            <div>
-              <label className="text-sm font-medium text-gray-500">Next Renewal</label>
-              <p className="text-gray-900">{currentUser.current_period_end}</p>
-            </div>
-          )}
-          <div>
-            <label className="text-sm font-medium text-gray-500">Entitled</label>
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-              currentUser.entitled 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-red-100 text-red-800'
-            }`}>
-              {currentUser.entitled ? 'Yes' : 'No'}
-            </span>
-          </div>
+    <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+      <h2 className="text-xl font-semibold mb-4">Profile</h2>
+      <div className="space-y-4">
+        <div>
+          <label className="text-sm font-medium text-gray-500">Name</label>
+          <p className="text-gray-900 mt-1">{profile.name || "—"}</p>
         </div>
-      </div>
 
-      {/* Billing & Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4">Billing & Account Actions</h2>
-        <div className="space-y-4">
-          {currentUser.status === 'active' && (
-            <button
-              onClick={handleCancelSubscription}
-              disabled={isLoading}
-              className="w-full btn btn-outline"
-            >
-              {isLoading ? 'Processing...' : 'Cancel Subscription'}
-            </button>
-          )}
+        <div>
+          <label className="text-sm font-medium text-gray-500">Email</label>
+          <p className="text-gray-900 mt-1">{profile.email || "—"}</p>
+        </div>
 
-          <button
-            onClick={handleDeleteAccount}
-            disabled={isLoading}
-            className="w-full btn btn-danger"
-          >
-            {isLoading ? 'Processing...' : 'Delete Account'}
-          </button>
-
-          <div className="text-sm text-gray-600">
-            <p>Need help? <a href="/support" className="text-primary-600 hover:underline">Contact Support</a></p>
-          </div>
+        <div>
+          <label className="text-sm font-medium text-gray-500">User ID</label>
+          <p className="text-gray-900 mt-1 break-all font-mono text-sm">
+            {profile.userId || "—"}
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
