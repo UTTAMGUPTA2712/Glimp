@@ -57,20 +57,18 @@ export async function POST(request: NextRequest) {
       }
 
       // Upsert profile with active subscription details
-      const { error: upsertError } = await supabase
+      const { error: updateError } = await supabase
         .from('users')
-        .upsert({
-          id: userId,
+        .update({
           status: 'active',
           plan: 'pro-monthly',
           current_period_end: new Date(entity.current_end * 1000).toISOString(),
           razorpay_subscription_id: entity.id
-        }, {
-          onConflict: 'id'
-        });
+        })
+        .eq('id', userId);
 
-      if (upsertError) {
-        console.error('Error upserting profile on subscription activation:', upsertError);
+      if (updateError) {
+        console.error('Error updating profile on subscription activation:', updateError);
       } else {
         console.log('Profile updated for subscription activation:', userId);
       }
@@ -107,19 +105,17 @@ export async function POST(request: NextRequest) {
       }
 
       // Upsert profile with active subscription details
-      const { error: upsertError } = await supabase
+      const { error: updateError } = await supabase
         .from('users')
-        .upsert({
-          id: userId,
+        .update({
           status: 'active',
           plan: 'pro-monthly',
           current_period_end: new Date(entity.current_end * 1000).toISOString(),
-        }, {
-          onConflict: 'id'
-        });
+        })
+        .eq('id', userId);
 
-      if (upsertError) {
-        console.error('Error upserting profile on subscription activation:', upsertError);
+      if (updateError) {
+        console.error('Error updating profile on subscription activation:', updateError);
       } else {
         console.log('Profile updated for subscription activation:', userId);
       }
