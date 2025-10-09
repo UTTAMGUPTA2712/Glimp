@@ -176,7 +176,7 @@ export default function PricingCard({
   };
 
   const handlePayment = async () => {
-    if (name === "Free") return;
+    if (!isPro) router.push("/support");
     try {
       const session = await getSession();
       if (!session) {
@@ -285,12 +285,9 @@ export default function PricingCard({
             ? "bg-gray-800 text-white hover:bg-gray-900"
             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
         }`}
-        disabled={name === "Free" || isProcessing}
         onClick={handlePayment}
       >
-        {name === "Free"
-          ? "Current Plan"
-          : "Get Started" + (isProcessing ? "..." : "")}
+        {isPro ? "Get Started" + (isProcessing ? "..." : "") : "Contact Sales"}
       </button>
     </div>
   );

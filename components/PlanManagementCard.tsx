@@ -115,7 +115,7 @@ export default function PlanManagementCard() {
       {isLoading && (
         <div className="absolute inset-0 z-10 rounded-2xl bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
           <div role="status" aria-live="polite" className="flex flex-col items-center gap-2">
-            <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin" />
+            <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-primary-600 animate-spin" />
             <span className="text-sm text-gray-700">Loading…</span>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function PlanManagementCard() {
         {!isActive ? (
           <a
             href="/pricing"
-            className="block w-full text-center bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="block w-full text-center bg-primary-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
           >
             Choose a Plan
           </a>
@@ -238,7 +238,7 @@ export default function PlanManagementCard() {
             Need help?{" "}
             <a
               href="/support"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-primary-600 hover:underline font-medium"
             >
               Contact Support
             </a>

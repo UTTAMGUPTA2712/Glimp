@@ -68,7 +68,7 @@ export default function DashboardPage() {
                         onClick={() => handleSetActiveTab(tab.id)}
                         className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors w-full justify-start ${
                           isActive
-                            ? "bg-blue-600 text-white shadow-md"
+                            ? "bg-primary-600 text-white shadow-md"
                             : "text-gray-700 hover:bg-gray-100"
                         }`}
                         aria-current={isActive ? "page" : undefined}
@@ -88,7 +88,7 @@ export default function DashboardPage() {
                 {isTabLoading && (
                   <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] rounded-xl flex items-center justify-center">
                     <div role="status" aria-live="polite" className="flex flex-col items-center gap-2">
-                      <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin" />
+                      <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-primary-600 animate-spin" />
                       <span className="text-sm text-gray-700">Loading…</span>
                     </div>
                   </div>

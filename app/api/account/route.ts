@@ -48,17 +48,25 @@ export async function GET(request: NextRequest) {
       .select()
       .eq('id', user.id)
       .single();
-      
-    if (error) throw new Error(error.message);
 
+    if (error) {
+      if (error?.code === "PGRST116") {
+        return NextResponse.json({
+          success: true,
+          message: 'Account not registered',
+          data: null,
+        });
+      }
+      throw new Error(error?.message);
+    }
     return NextResponse.json({
       success: true,
-      message: 'Product registered successfully',
+      message: 'Account successfully retrieved',
       data: data || null,
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Error fetching account:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

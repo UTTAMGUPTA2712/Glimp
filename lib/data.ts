@@ -89,21 +89,8 @@ export const faqs = [
 
 export const pricingPlans = [
   {
-    name: "Free",
-    price: "₹0",
-    period: "forever",
-    features: [
-      "AI Interview Assistant",
-      "Real-time Capture",
-      "Smart Summarization",
-      "Action Recommendations",
-      "3 Sessions per month",
-      "Email Support"
-    ]
-  },
-  {
     name: "Pro",
-    price: "₹1,599",
+    price: "₹2,499",
     period: "month",
     features: [
       "AI Interview Assistant",
@@ -114,6 +101,19 @@ export const pricingPlans = [
       "Priority Support"
     ]
   },
+  {
+    name: "Enterprise",
+    price: "Contact Sales",
+    period: "",
+    features: [
+      "Everything in Pro",
+      "Multi-seat Management",
+      "SSO Integration",
+      "Admin Dashboard",
+      "Custom Integrations",
+      "Dedicated Support"
+    ]
+  }
 ];
 
 export const supportQAs = [
