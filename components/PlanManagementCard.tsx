@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSession } from "@/lib/auth";
 import { Copy, Check } from "lucide-react";
+import { CopyToClipboard } from "@/lib/helper";
 
 type AccountData = {
   id: string;
@@ -22,7 +23,6 @@ export default function PlanManagementCard() {
   const [error, setError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelMessage, setCancelMessage] = useState<string | null>(null);
-  const [copiedUserId, setCopiedUserId] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -174,21 +174,12 @@ export default function PlanManagementCard() {
               <button
                 type="button"
                 onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(account.id);
-                    setCopiedUserId(true);
-                    window.setTimeout(() => setCopiedUserId(false), 1200);
-                  } catch {}
+                  await CopyToClipboard(account.id);
                 }}
                 className="inline-flex items-center justify-center p-1 rounded hover:bg-gray-100 border border-gray-200 text-gray-700"
                 aria-label="Copy User ID"
-                title={copiedUserId ? "Copied" : "Copy"}
               >
-                {copiedUserId ? (
-                  <Check className="w-4 h-4 text-green-600" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
+                <Copy className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -199,10 +190,10 @@ export default function PlanManagementCard() {
         </div>
         <div>
           <label className="text-sm font-medium text-gray-500">
-            Razorpay Customer ID
+            Current period ends on
           </label>
           <p className="text-gray-900 mt-1 break-all">
-            {account?.razorpay_customer_id || "-"}
+            {account?.current_period_end || "-"}
           </p>
         </div>
         <div>
@@ -218,6 +209,18 @@ export default function PlanManagementCard() {
           <p className="text-gray-900 mt-1 break-all">
             {account?.device_id || "-"}
           </p>
+          {account?.device_id && (
+            <button
+              type="button"
+              onClick={async () => {
+                await CopyToClipboard(account.device_id!);
+              }}
+              className="inline-flex items-center justify-center p-1 rounded hover:bg-gray-100 border border-gray-200 text-gray-700"
+              aria-label="Copy Device ID"
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+          )}
         </div>
         {account?.deleted_at && (
           <div>

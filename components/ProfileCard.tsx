@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getSession } from "@/lib/auth";
+import { Check, Copy } from "lucide-react";
+import { CopyToClipboard } from "@/lib/helper";
 
 type ProfileData = {
   name: string | null;
@@ -106,6 +108,18 @@ export default function ProfileCard() {
           <p className="text-gray-900 mt-1 break-all font-mono text-sm">
             {profile.userId || "—"}
           </p>
+          {profile.userId && (
+            <button
+              type="button"
+              onClick={async () => {
+                await CopyToClipboard(profile.userId!);
+              }}
+              className="inline-flex items-center justify-center p-1 rounded hover:bg-gray-100 border border-gray-200 text-gray-700"
+              aria-label="Copy User ID"
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>

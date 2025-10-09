@@ -78,7 +78,7 @@ export default function PaymentForm({ nonce }: PaymentFormProps) {
             Processing Payment...
           </div>
         ) : (
-          'Subscribe Now - ₹1,599/month'
+          'Subscribe Now - ₹2,499/month'
         )}
       </button>
     </div>
