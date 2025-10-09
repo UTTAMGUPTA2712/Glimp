@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Parse the webhook payload
     const payload = JSON.parse(rawBody);
+    console.log('payload: ', payload);
     const { event, payload: eventPayload } = payload;
 
     // Create Supabase client with service role
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     if (event === 'subscription.activated') {
       const subscription = eventPayload.subscription;
       const entity = subscription.entity;
-      
+
       // Extract user ID from notes
       const userId = entity.notes?.userId;
       if (!userId) {
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
     } else if (event === 'subscription.cancelled') {
       const subscription = eventPayload.subscription;
       const entity = subscription.entity;
-      
+
       // Extract user ID from notes
       const userId = entity.notes?.userId;
       if (!userId) {
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
       // Update profile status to cancelled
       const { error: updateError } = await supabase
         .from('users')
-        .update({ status: 'cancelled' })
+        .update({ status: 'cancelled', razorpay_subscription_id: null })
         .eq('id', userId);
 
       if (updateError) {
@@ -96,8 +97,35 @@ export async function POST(request: NextRequest) {
       } else {
         console.log('Profile updated for subscription cancellation:', userId);
       }
-    }
+    } else if (event === 'subscription.charged') {
+      const subscription = eventPayload.subscription;
+      const entity = subscription.entity;
+      const userId = entity.notes?.userId;
+      if (!userId) {
+        console.error('No userId found in subscription notes');
+        return NextResponse.json({ received: true });
+      }
 
+      // Upsert profile with active subscription details
+      const { error: upsertError } = await supabase
+        .from('users')
+        .upsert({
+          id: userId,
+          status: 'active',
+          plan: 'pro-monthly',
+          current_period_end: new Date(entity.current_end * 1000).toISOString(),
+        }, {
+          onConflict: 'id'
+        });
+
+      if (upsertError) {
+        console.error('Error upserting profile on subscription activation:', upsertError);
+      } else {
+        console.log('Profile updated for subscription activation:', userId);
+      }
+
+
+    }
     return NextResponse.json({ received: true });
 
   } catch (error) {

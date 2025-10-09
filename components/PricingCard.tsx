@@ -178,6 +178,7 @@ export default function PricingCard({
   const handlePayment = async () => {
     if (!isPro) router.push("/support");
     try {
+      setIsProcessing(true);
       const session = await getSession();
       if (!session) {
         router.push("/login");

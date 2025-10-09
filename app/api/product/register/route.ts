@@ -47,23 +47,21 @@ export async function POST(request: NextRequest) {
             .eq('id', user.id)
             .single();
 
-        if (error) {
+        if (error && error.code === 'PGRST116') {
             console.error('Supabase error fetching user:', error);
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+            return NextResponse.json({ error: 'No Plan Subscribed' }, { status: 403 });
         }
 
-        if (!data.subscription_id) {
+        if (!data.razorpay_subscription_id) {
             return NextResponse.json({ error: 'Missing subscription' }, { status: 400 });
         }
 
         const { error: updateError } = await supabase
             .from('users')
-            .upsert({
-                id: user.id,
+            .update({
                 device_id: device_id
-            }, {
-                onConflict: 'id'
             })
+            .eq("id", user.id)
 
         if (updateError) {
             console.error('Error updating device ID:', updateError);

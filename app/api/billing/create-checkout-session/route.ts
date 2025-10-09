@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
     }
 
     const subscription = await razorpayResponse.json();
+    console.log('subscription: ', subscription);
     console.log('Razorpay subscription created:', {
       id: subscription.id,
       status: subscription.status,

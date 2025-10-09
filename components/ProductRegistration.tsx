@@ -18,8 +18,12 @@ export default function ProductRegistration() {
   const checkRegistration = async () => {
     try {
       const session = await getSession();
-      const data = { registered: "aslhasd", device_id: "some-uuid" };
+      const accessToken = session?.access_token;
 
+      const response = await fetch("/api/account", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data = await response.json();
       if (data.registered) {
         setIsRegistered(true);
         setRegisteredUuid(data.device_id);

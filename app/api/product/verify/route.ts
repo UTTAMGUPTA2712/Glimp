@@ -4,11 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
+        console.log("sdfsdf");
         const { deviceId, userId } = await req.json();
+        console.log('deviceId, userId: ', deviceId, userId);
 
         if (!deviceId || !userId) {
             return NextResponse.json(
@@ -34,6 +35,13 @@ export async function GET(req: NextRequest) {
         if (data?.device_id !== deviceId) {
             return NextResponse.json(
                 { error: 'Device not authorized' },
+                { status: 403 }
+            );
+        }
+
+        if (new Date(data?.current_period_end) < new Date()) {
+            return NextResponse.json(
+                { error: 'Subscription expired' },
                 { status: 403 }
             );
         }
