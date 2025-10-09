@@ -1,16 +1,5 @@
 import { User } from './auth'
 
-export function isEntitled(user: User | null): boolean {
-  if (!user) return false
-
-  return (
-    user.status !== 'deleted' &&
-    ['active', 'trialing'].includes(user.status) &&
-    user.current_period_end &&
-    new Date(user.current_period_end) > new Date()
-  )
-}
-
 export function getEntitlementStatus(user: User | null) {
   if (!user) {
     return {
