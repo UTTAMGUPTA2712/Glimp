@@ -8,7 +8,65 @@ export const runtime = 'nodejs';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
+  // Create Supabase client with service role
+  try {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get user from session
+    const authHeader = request.headers.get('authorization');
+    const sessionCookie = request.cookies.get('sb-access-token') ||
+      request.cookies.get('sb-jdvnlsobjurqwdcrztkq-auth-token');
+
+    if (!sessionCookie && !authHeader) {
+      console.error('No authentication found');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    let user;
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      console.log('Using auth header token');
+      const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
+      if (error || !authUser) {
+        console.error('Auth header validation failed:', error);
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      user = authUser;
+    } else {
+      console.log('Using session cookie');
+      const { data: { user: cookieUser }, error } = await supabase.auth.getUser();
+      if (error || !cookieUser) {
+        console.error('Session cookie validation failed:', error);
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      user = cookieUser;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select()
+      .eq('id', user.id)
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Product registered successfully',
+      data: data || null,
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
   try {
     // Create Supabase client with service role
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
