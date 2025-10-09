@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
     // Check if user already has an active subscription
     console.log('Checking existing subscription...');
     const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('stripe_subscription_id, status, current_period_end, deleted_at')
+      .from('users')
+      .select('razorpay_subscription_id, status, current_period_end, deleted_at')
       .eq('id', user.id)
       .single();
 
@@ -134,15 +134,15 @@ export async function POST(request: NextRequest) {
       plan_id: subscription.plan_id
     });
 
-    // Store subscription ID in profiles table
+    // Store subscription ID in users table
     console.log('Storing subscription ID in database...');
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .upsert({
         id: user.id,
         email: user.email,
-        stripe_customer_id: subscription.customer_id,
-        stripe_subscription_id: subscription.id,
+        razorpay_customer_id: subscription.customer_id,
+        razorpay_subscription_id: subscription.id,
         plan: 'pro-monthly',
         status: 'created'
       }, {

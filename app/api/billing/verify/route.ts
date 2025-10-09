@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Optimistically mark profile as active
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ status: 'active' })
       .eq('id', user.id);
 

@@ -7,8 +7,8 @@ export interface Profile {
   plan: string;
   status: string;
   current_period_end: string;
-  stripe_customer_id: string | null;
-  stripe_subscription_id: string | null;
+  razorpay_customer_id: string | null;
+  razorpay_subscription_id: string | null;
   deleted_at: string | null;
 }
 
@@ -35,8 +35,8 @@ export function isEntitled(profile: Profile): boolean {
 export async function getProfile(userId: string): Promise<Profile | null> {
   try {
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, plan, status, current_period_end, stripe_customer_id, stripe_subscription_id, deleted_at')
+      .from('users')
+      .select('id, email, plan, status, current_period_end, razorpay_customer_id, razorpay_subscription_id, deleted_at')
       .eq('id', userId)
       .single();
 
@@ -58,7 +58,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 export async function updateProfile(userId: string, updates: Partial<Profile>): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('profiles')
+      .from('users')
       .update(updates)
       .eq('id', userId);
 

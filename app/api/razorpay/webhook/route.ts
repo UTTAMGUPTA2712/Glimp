@@ -57,13 +57,13 @@ export async function POST(request: NextRequest) {
 
       // Upsert profile with active subscription details
       const { error: upsertError } = await supabase
-        .from('profiles')
+        .from('users')
         .upsert({
           id: userId,
           status: 'active',
           plan: 'pro-monthly',
           current_period_end: new Date(entity.current_end * 1000).toISOString(),
-          stripe_subscription_id: entity.id
+          razorpay_subscription_id: entity.id
         }, {
           onConflict: 'id'
         });
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
       // Update profile status to cancelled
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('users')
         .update({ status: 'cancelled' })
         .eq('id', userId);
 

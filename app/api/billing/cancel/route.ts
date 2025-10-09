@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
 
     // Get user's profile to find subscription ID
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('stripe_subscription_id')
+      .from('users')
+      .select('razorpay_subscription_id')
       .eq('id', user.id)
       .single();
 
-    if (profileError || !profile?.stripe_subscription_id) {
+    if (profileError || !profile?.razorpay_subscription_id) {
       return NextResponse.json({ error: 'No active subscription found' }, { status: 404 });
     }
 
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Cancel subscription with Razorpay
-    const razorpayResponse = await fetch(`https://api.razorpay.com/v1/subscriptions/${profile.stripe_subscription_id}/cancel`, {
+    const razorpayResponse = await fetch(`https://api.razorpay.com/v1/subscriptions/${profile.razorpay_subscription_id}/cancel`, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${Buffer.from(`${razorpayKeyId}:${razorpayKeySecret}`).toString('base64')}`,
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     // Update profile status to cancelled
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ status: 'cancelled' })
       .eq('id', user.id);
 
