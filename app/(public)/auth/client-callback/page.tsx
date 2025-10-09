@@ -55,13 +55,13 @@ export default function ClientCallback() {
           });
     
           setStatus('Redirecting...');
+          router.push('/dashboard');
           return;
         }
 
         // Try to handle the callback using Supabase's built-in method
         setStatus('Checking authentication status...');
         const { data, error: authError } = await supabase.auth.getSession();
-        
         if (authError) {
           console.error('Auth session error:', authError);
           setError('Authentication failed');
