@@ -23,11 +23,11 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <nav className="container mx-auto px-4 py-4">
+      <nav className="container">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-primary-600">
-            Glimp AI
+          <Link href="/" className="flex items-center gap-2 overflow-hidden h-20">
+            <img src="/logo.png" alt="Glimp AI" className="h-100" width={100}/>
           </Link>
 
           {/* Navigation Links */}
