@@ -205,7 +205,7 @@ export default function PlanManagementCard() {
           </p>
         </div>
         <div>
-          <label className="text-sm font-medium text-gray-500">Device</label>
+          <label className="text-sm font-medium text-gray-500">Device Mac Address</label>
           <p className="text-gray-900 mt-1 break-all">
             {account?.device_id || "-"}
           </p>

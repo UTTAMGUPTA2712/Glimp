@@ -3,7 +3,6 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PlanManagementCard from "@/components/PlanManagementCard";
-import ProductRegistration from "@/components/ProductRegistration";
 import ProfileCard from "@/components/ProfileCard";
 import { User, CreditCard, Key } from "lucide-react";
 
@@ -25,8 +24,6 @@ export default function DashboardPage() {
         return <ProfileCard />;
       case "plan":
         return <PlanManagementCard />;
-      case "product":
-        return <ProductRegistration />;
       default:
         return <ProfileCard />;
     }

@@ -1,3 +1,4 @@
+import { createToken } from '@/lib/jwt';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -13,8 +14,6 @@ export async function POST(request: NextRequest) {
         const authHeader = request.headers.get('authorization');
         const sessionCookie = request.cookies.get('sb-access-token') ||
             request.cookies.get('sb-jdvnlsobjurqwdcrztkq-auth-token');
-
-        console.log('Auth check:', { hasAuthHeader: !!authHeader, hasSessionCookie: !!sessionCookie });
 
         if (!sessionCookie && !authHeader) {
             console.error('No authentication found');
@@ -70,11 +69,17 @@ export async function POST(request: NextRequest) {
 
         console.log(`Device ID ${device_id} registered for user ${user.id}`);
 
+        const tokenPayload = {
+            user_id: user.id,
+            device_id: device_id,
+        };
+        const deviceToken = createToken(tokenPayload, 60 * 60 * 24 * 30);
+
         return NextResponse.json({
+            device_token: deviceToken,
             success: true,
             message: 'Product registered successfully',
         });
-
     } catch (error) {
         console.error('Registration error:', error);
         return NextResponse.json(

@@ -9,6 +9,7 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [error, setError] = useState<string>("");
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const handleLoginFlow = async () => {
@@ -26,9 +27,37 @@ export default function LoginForm() {
         }
 
         if (session) {
+          const device_id = searchParams.get("device_id");
+          if (device_id) {
+            await fetch("/api/product/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ device_id }),
+            })
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Failed to register device");
+                }
+                return res.json();
+              })
+              .then((data) => {
+                localStorage.setItem(
+                  "device_token",
+                  JSON.stringify(data.body.device_token)
+                );
+              })
+              .catch((err) => {
+                console.error("Device registration error:", err);
+                setError("Device registration failed");
+              });
+          } else {
             router.push("/dashboard");
-            return;
-        } 
+          }
+          return;
+        }
 
         // User not logged in, show login form
         setIsLoading(false);
@@ -40,7 +69,7 @@ export default function LoginForm() {
     };
 
     handleLoginFlow();
-  },[]);
+  }, []);
 
   const handleGoogleLogin = async () => {
     if (isAuthenticating) return;
@@ -55,7 +84,6 @@ export default function LoginForm() {
         throw new Error("Site URL not configured");
       }
 
-      
       const redirectTo = `${siteUrl}/auth/client-callback`;
 
       console.log("Initiating OAuth with redirect:", redirectTo);
