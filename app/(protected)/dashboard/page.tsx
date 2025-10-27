@@ -15,7 +15,6 @@ export default function DashboardPage() {
   const tabs = [
     { id: "profile" as TabType, label: "Profile", icon: User },
     { id: "plan" as TabType, label: "Plan & Billing", icon: CreditCard },
-    { id: "product" as TabType, label: "Product License", icon: Key },
   ];
 
   const renderTab = (tabType: TabType) => {

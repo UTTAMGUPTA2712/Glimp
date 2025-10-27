@@ -28,31 +28,33 @@ export default function LoginForm() {
 
         if (session) {
           const device_id = searchParams.get("device_id");
+          console.log('device_id: ', device_id);
           if (device_id) {
-            await fetch("/api/product/register", {
+            const data = await fetch("/api/product/register", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${session.access_token}`,
               },
               body: JSON.stringify({ device_id }),
-            })
-              .then((res) => {
-                if (!res.ok) {
-                  throw new Error("Failed to register device");
-                }
-                return res.json();
-              })
-              .then((data) => {
-                localStorage.setItem(
-                  "device_token",
-                  JSON.stringify(data.body.device_token)
-                );
-              })
-              .catch((err) => {
-                console.error("Device registration error:", err);
-                setError("Device registration failed");
-              });
+            });
+            if (!data.ok) {
+              const errorData = await data.json();
+              console.error("Product registration error:", errorData);
+              setError(
+                errorData.message || "Failed to register product license"
+              );
+              setIsLoading(false);
+              return;
+            }
+            const dataJson = await data.json();
+            console.log("Product registered successfully:", dataJson);
+            localStorage.setItem(
+              "device_token",
+              JSON.stringify(dataJson.device_token)
+            );
+            // Successfully registered, redirect to dashboard
+            router.push("/redirect");
           } else {
             router.push("/dashboard");
           }
@@ -84,7 +86,7 @@ export default function LoginForm() {
         throw new Error("Site URL not configured");
       }
 
-      const redirectTo = `${siteUrl}/auth/client-callback`;
+      const redirectTo = `${siteUrl}/auth/client-callback?device_id=${searchParams.get("device_id") || ""}`;
 
       console.log("Initiating OAuth with redirect:", redirectTo);
 
