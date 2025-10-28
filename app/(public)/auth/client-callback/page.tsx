@@ -34,7 +34,7 @@ export default function ClientCallback() {
       console.log("Product registered successfully:", dataJson);
       localStorage.setItem(
         "device_token",
-        JSON.stringify(dataJson.device_token)
+        dataJson.device_token
       );
       // Redirect to redirect page with redirect_url parameter
       const redirectParams = new URLSearchParams();

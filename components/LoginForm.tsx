@@ -53,7 +53,7 @@ export default function LoginForm() {
             console.log("Product registered successfully:", dataJson);
             localStorage.setItem(
               "device_token",
-              JSON.stringify(dataJson.device_token)
+             dataJson.device_token
             );
             // Successfully registered, redirect to redirect page with redirect_url
             const redirectParams = new URLSearchParams();
