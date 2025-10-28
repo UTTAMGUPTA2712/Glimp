@@ -21,7 +21,9 @@ export default function Page() {
       
       // If redirect_url is provided, use it instead of the default app URL
       if (redirect_url) {
-        window.location.href = redirect_url;
+        const url = new URL(redirect_url);
+        url.searchParams.append("device_token", deviceToken);
+        window.location.href = url.toString();
       } else {
         window.location.href = `glimpai://register_device?${params.toString()}`;
       }
