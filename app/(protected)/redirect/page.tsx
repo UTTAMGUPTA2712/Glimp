@@ -1,16 +1,32 @@
 "use client";
 import { useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect_url = searchParams.get("redirect_url");
+  if(!redirect_url || redirect_url === ""){
+    router.push("/dashboard");
+    return;
+  }
   useEffect(() => {
     const deviceToken = localStorage.getItem("device_token");
+    const redirect_url = searchParams.get("redirect_url");
+    
     if (deviceToken) {
       // Open App while sending this token to the app
       const params = new URLSearchParams();
       params.append("device_token", deviceToken);
-      window.location.href = `glimpai://register_device?${params.toString()}`;
+      
+      // If redirect_url is provided, use it instead of the default app URL
+      if (redirect_url) {
+        window.location.href = redirect_url;
+      } else {
+        window.location.href = `glimpai://register_device?${params.toString()}`;
+      }
     }
-  }, []);
+  }, [searchParams]);
 
   return (
     <>
@@ -26,9 +42,17 @@ export default function Page() {
             <button
               onClick={() => {
                 const deviceToken = localStorage.getItem("device_token");
-                const params = new URLSearchParams();
-                if (deviceToken) params.append("device_token", deviceToken);
-                window.location.href = `glimpai://register_device?${params.toString()}`;
+                const redirect_url = searchParams.get("redirect_url");
+                
+                if (deviceToken) {
+                  if (redirect_url) {
+                    window.location.href = redirect_url;
+                  } else {
+                    const params = new URLSearchParams();
+                    params.append("device_token", deviceToken);
+                    window.location.href = `glimpai://register_device?${params.toString()}`;
+                  }
+                }
               }}
               className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200"
             >

@@ -28,7 +28,9 @@ export default function LoginForm() {
 
         if (session) {
           const device_id = searchParams.get("device_id");
+          const redirect_url = searchParams.get("redirect_url");
           console.log('device_id: ', device_id);
+          console.log('redirect_url: ', redirect_url);
           if (device_id) {
             const data = await fetch("/api/product/register", {
               method: "POST",
@@ -53,8 +55,12 @@ export default function LoginForm() {
               "device_token",
               JSON.stringify(dataJson.device_token)
             );
-            // Successfully registered, redirect to dashboard
-            router.push("/redirect");
+            // Successfully registered, redirect to redirect page with redirect_url
+            const redirectParams = new URLSearchParams();
+            if (redirect_url) {
+              redirectParams.append("redirect_url", redirect_url);
+            }
+            router.push(`/redirect?${redirectParams.toString()}`);
           } else {
             router.push("/dashboard");
           }
@@ -86,7 +92,9 @@ export default function LoginForm() {
         throw new Error("Site URL not configured");
       }
 
-      const redirectTo = `${siteUrl}/auth/client-callback?device_id=${searchParams.get("device_id") || ""}`;
+      const device_id = searchParams.get("device_id") || "";
+      const redirect_url = searchParams.get("redirect_url") || "";
+      const redirectTo = `${siteUrl}/auth/client-callback?device_id=${device_id}&redirect_url=${encodeURIComponent(redirect_url)}`;
 
       console.log("Initiating OAuth with redirect:", redirectTo);
 

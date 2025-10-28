@@ -13,6 +13,7 @@ export default function ClientCallback() {
 
   const redirect = async (access_token: string) => {
     const device_id = searchParams.get("device_id");
+    const redirect_url = searchParams.get("redirect_url");
 
     if (device_id) {
       const data = await fetch("/api/product/register", {
@@ -35,7 +36,12 @@ export default function ClientCallback() {
         "device_token",
         JSON.stringify(dataJson.device_token)
       );
-      router.push("/redirect");
+      // Redirect to redirect page with redirect_url parameter
+      const redirectParams = new URLSearchParams();
+      if (redirect_url) {
+        redirectParams.append("redirect_url", redirect_url);
+      }
+      router.push(`/redirect?${redirectParams.toString()}`);
     } else {
       router.push("/dashboard");
     }
