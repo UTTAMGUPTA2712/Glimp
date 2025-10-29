@@ -29,8 +29,8 @@ export default function LoginForm() {
         if (session) {
           const device_id = searchParams.get("device_id");
           const redirect_url = searchParams.get("redirect_url");
-          console.log('device_id: ', device_id);
-          console.log('redirect_url: ', redirect_url);
+          console.log("device_id: ", device_id);
+          console.log("redirect_url: ", redirect_url);
           if (device_id) {
             const data = await fetch("/api/product/register", {
               method: "POST",
@@ -41,6 +41,12 @@ export default function LoginForm() {
               body: JSON.stringify({ device_id }),
             });
             if (!data.ok) {
+              if(data.status === 403) {
+                setError("No active subscription found. Please subscribe to a plan.");
+                setIsLoading(false);
+                router.push("/pricing");
+                return;
+              }
               const errorData = await data.json();
               console.error("Product registration error:", errorData);
               setError(
@@ -51,10 +57,7 @@ export default function LoginForm() {
             }
             const dataJson = await data.json();
             console.log("Product registered successfully:", dataJson);
-            localStorage.setItem(
-              "device_token",
-             dataJson.device_token
-            );
+            localStorage.setItem("device_token", dataJson.device_token);
             // Successfully registered, redirect to redirect page with redirect_url
             const redirectParams = new URLSearchParams();
             if (redirect_url) {
@@ -94,7 +97,9 @@ export default function LoginForm() {
 
       const device_id = searchParams.get("device_id") || "";
       const redirect_url = searchParams.get("redirect_url") || "";
-      const redirectTo = `${siteUrl}/auth/client-callback?device_id=${device_id}&redirect_url=${encodeURIComponent(redirect_url)}`;
+      const redirectTo = `${siteUrl}/auth/client-callback?device_id=${device_id}&redirect_url=${encodeURIComponent(
+        redirect_url
+      )}`;
 
       console.log("Initiating OAuth with redirect:", redirectTo);
 

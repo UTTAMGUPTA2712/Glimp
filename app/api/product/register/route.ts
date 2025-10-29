@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!data.razorpay_subscription_id) {
-            return NextResponse.json({ error: 'Missing subscription' }, { status: 400 });
+            return NextResponse.json({ error: 'Missing subscription' }, { status: 403 });
         }
 
         const { error: updateError } = await supabase
