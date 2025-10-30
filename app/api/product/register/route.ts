@@ -46,13 +46,19 @@ export async function POST(request: NextRequest) {
             .eq('id', user.id)
             .single();
 
+        const tokenPayload = {
+            user_id: user.id,
+            device_id: device_id,
+        };
+        const deviceToken = createToken(tokenPayload);
+
         if (error && error.code === 'PGRST116') {
             console.error('Supabase error fetching user:', error);
-            return NextResponse.json({ error: 'No Plan Subscribed' }, { status: 403 });
+            return NextResponse.json({ error: 'No Plan Subscribed', deviceToken }, { status: 403 });
         }
 
         if (!data.razorpay_subscription_id) {
-            return NextResponse.json({ error: 'Missing subscription' }, { status: 403 });
+            return NextResponse.json({ error: 'Missing subscription', deviceToken }, { status: 403 });
         }
 
         const { error: updateError } = await supabase
@@ -68,12 +74,6 @@ export async function POST(request: NextRequest) {
         }
 
         console.log(`Device ID ${device_id} registered for user ${user.id}`);
-
-        const tokenPayload = {
-            user_id: user.id,
-            device_id: device_id,
-        };
-        const deviceToken = createToken(tokenPayload, 60 * 60 * 24 * 30);
 
         return NextResponse.json({
             device_token: deviceToken,

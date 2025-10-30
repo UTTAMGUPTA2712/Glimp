@@ -10,10 +10,14 @@ export async function POST(req: NextRequest) {
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         const body = await req.json();
+        console.log("Request body:", body);
         // accept both snake_case and camelCase
         const deviceId = body.device_id ?? body.deviceId;
         let userId = body.user_id ?? body.userId;
         const token = body.token;
+        console.log("Device id",deviceId);
+
+        
 
         // deviceId is always required; userId may come from token
         if (!deviceId) {
@@ -35,6 +39,7 @@ export async function POST(req: NextRequest) {
             try {
                 // verifyToken might be async — await it to be safe
                 decoded = (await verifyToken(token)) as any;
+                console.log("Decoded token:", decoded);
             } catch (err) {
                 console.error("Token verification failed:", err);
                 return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -42,6 +47,7 @@ export async function POST(req: NextRequest) {
 
             // ensure device matches token when token includes device_id
             if (decoded.device_id && decoded.device_id !== deviceId) {
+                console.log("Device ID in token does not match provided device ID:", { tokenDeviceId: decoded.device_id, providedDeviceId: deviceId });
                 return NextResponse.json(
                     { error: "Device ID does not match token" },
                     { status: 403 }
@@ -77,6 +83,7 @@ export async function POST(req: NextRequest) {
 
         // check if device_id matches
         if (user.device_id !== deviceId) {
+            console.log("Device ID mismatch:", { expected: user.device_id, received: deviceId });
             return NextResponse.json(
                 { error: "Device ID does not match" },
                 { status: 403 }
@@ -87,6 +94,7 @@ export async function POST(req: NextRequest) {
         if (user.current_period_end) {
             const periodEnd = new Date(user.current_period_end);
             if (isNaN(periodEnd.getTime()) || periodEnd <= new Date()) {
+                console.log("Subscription expired or invalid date:", user.current_period_end);
                 return NextResponse.json(
                     { error: "Subscription is not active" },
                     { status: 403 }
