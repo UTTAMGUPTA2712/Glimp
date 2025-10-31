@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
         if (user.device_id !== deviceId) {
             console.log("Device ID mismatch:", { expected: user.device_id, received: deviceId });
             return NextResponse.json(
-                { error: "Device ID does not match" },
+                { error: "Device is not registered" },
                 { status: 403 }
             );
         }

@@ -8,6 +8,7 @@ export const runtime = 'nodejs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAuthTokenKey = process.env.NEXT_PUBLIC_SUPABASE_AUTH_TOKEN_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
     // Get user from session
     console.log('request.headers: ', request.headers);
     const authHeader = request.headers.get('authorization');
-    const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get('sb-jdvnlsobjurqwdcrztkq-auth-token');
+    const sessionCookie = request.cookies.get('sb-access-token') || request.cookies.get(supabaseAuthTokenKey);
 
     console.log('sessionCookie: ', sessionCookie);
     console.log('authHeader: ', authHeader);
@@ -65,10 +66,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    // Optimistically mark profile as active
+    // Optimistically mark profile as created
     const { error: updateError } = await supabase
       .from('users')
-      .update({ status: 'active' })
+      .update({ status: 'created' })
       .eq('id', user.id);
 
     if (updateError) {

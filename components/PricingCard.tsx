@@ -1,9 +1,9 @@
 "use client";
 
 import { getSession } from "@/lib/auth";
-import { User } from "@supabase/supabase-js";
+import { getProfile } from "@/lib/database";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -28,7 +28,19 @@ export default function PricingCard({
   const router = useRouter();
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [subscriptionId, setSubscriptionId] = useState<string>("");
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (!isPro) return;
+    const fetchUser = async () => {
+      const user = await getProfile();
+      console.log("user: ", user);
+      if (user) {
+        setUser(user);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const loadRazorpayAndOpen = (
     subscriptionId: string,
@@ -121,9 +133,6 @@ export default function PricingCard({
               console.log("✅ Payment verification result:", verifyData);
               if (verifyData.ok) {
                 console.log("🎉 Payment successful! Redirecting...");
-                // Payment successful - open launch page in new tab
-                // window.open(`/app/launch?nonce=${nonce}`, "_blank");
-
                 // Redirect to profile page using window.location
                 router.push("/dashboard");
               } else {
@@ -184,7 +193,7 @@ export default function PricingCard({
         router.push("/login");
         return;
       } else {
-        let currentSubscriptionId = subscriptionId;
+        let currentSubscriptionId = user.razorpay_subscription_id;
         if (!currentSubscriptionId) {
           const response = await fetch("/api/billing/create-checkout-session", {
             method: "POST",
@@ -212,8 +221,8 @@ export default function PricingCard({
           currentSubscriptionId = responseData.subscription_id;
           console.log("=== NEW SUBSCRIPTION CREATED ===");
           console.log("Subscription ID:", currentSubscriptionId);
-          setSubscriptionId(currentSubscriptionId);
         }
+
         const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
         if (!razorpayKeyId) {
           throw new Error("Razorpay key not configured");
@@ -231,6 +240,18 @@ export default function PricingCard({
       );
       setIsProcessing(false);
     }
+  };
+
+  const getButtonText = (isPro: boolean, user: any, isProcessing: boolean) => {
+    if (!isPro) return "Contact Us";
+    if (user?.plan === "pro-monthly") {
+      if (new Date(user.current_period_end) > new Date()) {
+        return "Current Plan";
+      }
+      return "Renew Plan";
+    }
+    if (isProcessing) return "Processing...";
+    return "Get Started";
   };
 
   return (
@@ -287,8 +308,9 @@ export default function PricingCard({
             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
         }`}
         onClick={handlePayment}
+        disabled={(user?.plan && isPro) || isProcessing}
       >
-        {isPro ? "Get Started" + (isProcessing ? "..." : "") : "Contact Sales"}
+        {getButtonText(isPro, user, isProcessing)}
       </button>
     </div>
   );

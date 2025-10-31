@@ -7,6 +7,7 @@ export const runtime = 'nodejs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAuthTokenKey = process.env.NEXT_PUBLIC_SUPABASE_AUTH_TOKEN_KEY!;
 
 export async function POST(request: NextRequest) {
     try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
 
         const authHeader = request.headers.get('authorization');
         const sessionCookie = request.cookies.get('sb-access-token') ||
-            request.cookies.get('sb-jdvnlsobjurqwdcrztkq-auth-token');
+            request.cookies.get(supabaseAuthTokenKey);
 
         console.log('Auth check:', { hasAuthHeader: !!authHeader, hasSessionCookie: !!sessionCookie });
 

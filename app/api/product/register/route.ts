@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAuthTokenKey = process.env.NEXT_PUBLIC_SUPABASE_AUTH_TOKEN_KEY!;
 
 export async function POST(request: NextRequest) {
     try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
         // Get user from session
         const authHeader = request.headers.get('authorization');
         const sessionCookie = request.cookies.get('sb-access-token') ||
-            request.cookies.get('sb-jdvnlsobjurqwdcrztkq-auth-token');
+            request.cookies.get(supabaseAuthTokenKey);
 
         if (!sessionCookie && !authHeader) {
             console.error('No authentication found');
@@ -54,11 +55,11 @@ export async function POST(request: NextRequest) {
 
         if (error && error.code === 'PGRST116') {
             console.error('Supabase error fetching user:', error);
-            return NextResponse.json({ error: 'No Plan Subscribed', deviceToken }, { status: 403 });
+            return NextResponse.json({ error: 'No Plan Subscribed', device_token: deviceToken }, { status: 403 });
         }
 
         if (!data.razorpay_subscription_id) {
-            return NextResponse.json({ error: 'Missing subscription', deviceToken }, { status: 403 });
+            return NextResponse.json({ error: 'Missing subscription', device_token: deviceToken }, { status: 403 });
         }
 
         const { error: updateError } = await supabase

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { handleDeviceRedirect } from "@/lib/redirect";
 
 export default function ClientCallback() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function ClientCallback() {
   const device_id = searchParams.get("device_id");
   const redirect_url = searchParams.get("redirect_url");
   const redirect = async (access_token: string) => {
-    if (device_id) {
+    if (device_id && redirect_url) {
       const data = await fetch("/api/product/register", {
         method: "POST",
         headers: {
@@ -23,26 +24,24 @@ export default function ClientCallback() {
         },
         body: JSON.stringify({ device_id }),
       });
+      const dataJson = await data.json();
       if (!data.ok) {
         if (data.status === 403) {
+          console.log(
+            "No active subscription, redirecting to pricing",
+            dataJson
+          );
+          handleDeviceRedirect(dataJson.device_token, redirect_url);
           setError("No active subscription found. Please subscribe to a plan.");
-          router.push("/pricing");
+          router.push("/pricing?showMessage=true");
           return;
         }
-        const errorData = await data.json();
-        console.error("Product registration error:", errorData);
-        setError(errorData.message || "Failed to register product license");
+        console.error("Product registration error:", dataJson);
+        setError(dataJson.message || "Failed to register product license");
         return;
       }
-      const dataJson = await data.json();
       console.log("Product registered successfully:", dataJson);
-      localStorage.setItem("device_token", dataJson.device_token);
-      // Redirect to redirect page with redirect_url parameter
-      const redirectParams = new URLSearchParams();
-      if (redirect_url) {
-        redirectParams.append("redirect_url", redirect_url);
-      }
-      router.push(`/redirect?${redirectParams.toString()}`);
+      handleDeviceRedirect(dataJson.device_token, redirect_url);
     } else {
       router.push("/dashboard");
     }

@@ -1,25 +1,16 @@
-import { log } from "console";
-
-/**
- * Handles device registration redirection with optional custom redirect URL
- * @param deviceToken - The device token to be included in the redirect URL
- * @param redirectUrl - Optional custom redirect URL
- */
 export async function handleDeviceRedirect(deviceToken: string, redirectUrl?: string) {
-    const params = new URLSearchParams();
-    params.append("device_token", deviceToken);
-    console.log("hit here");
+    console.log("Handling device redirect", { deviceToken, redirectUrl });
 
-    if (redirectUrl) {
-        const url = new URL(redirectUrl);
-        url.searchParams.append("device_token", deviceToken);
-        const response = await fetch(url.toString());
-        const data = await response.json();
-        console.log("Redirect response data:", data);
-    } else {
-        const response = await fetch(`glimpai://register_device?${params.toString()}`)
-
-        const data = await response.json();
-        console.log("Redirect response data:", data);
+    if (!redirectUrl) {
+        console.warn("No redirect URL provided, skipping window open.");
+        return;
     }
+
+    // Construct the target URL with deviceToken as query param
+    const url = new URL(redirectUrl, window.location.origin);
+    url.searchParams.append('deviceToken', deviceToken);
+    const targetUrl = url.toString();
+
+    // Open in a new popup window
+    window.open(targetUrl, '_blank', 'width=800,height=600,menubar=no,scrollbars=yes,resizable=yes');
 }
