@@ -44,6 +44,18 @@ export default function PricingPage({
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-semibold mb-2">
+                      App not working even after subscription?
+                    </h3>
+                    <p className="text-gray-600">
+                      App will start working after your subscription is active
+                      it might take a few minutes after payment. If your app is
+                      not working after subscribing, please try logging out and
+                      logging back in. If the issue persists, contact our
+                      support team for assistance.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">
                       Can I cancel anytime?
                     </h3>
                     <p className="text-gray-600">

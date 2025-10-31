@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
         const deviceId = body.device_id ?? body.deviceId;
         let userId = body.user_id ?? body.userId;
         const token = body.token;
-        console.log("Device id",deviceId);
+        console.log("Device id", deviceId);
 
-        
+
 
         // deviceId is always required; userId may come from token
         if (!deviceId) {
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
             if (decoded.device_id && decoded.device_id !== deviceId) {
                 console.log("Device ID in token does not match provided device ID:", { tokenDeviceId: decoded.device_id, providedDeviceId: deviceId });
                 return NextResponse.json(
-                    { error: "Device ID does not match token" },
+                    { error: "Invalid authenticated device" },
                     { status: 403 }
                 );
             }
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         // fetch user from Supabase to validate device and subscription
         const { data: user, error } = await supabase
             .from("users")
-            .select("id, device_id, current_period_end")
+            .select("id, device_id, current_period_end, status")
             .eq("id", userId)
             .single();
 
@@ -86,6 +86,14 @@ export async function POST(req: NextRequest) {
             console.log("Device ID mismatch:", { expected: user.device_id, received: deviceId });
             return NextResponse.json(
                 { error: "Device is not registered" },
+                { status: 403 }
+            );
+        }
+
+        if (user.status !== 'active') {
+            console.log("User subscription status is not active:", user.status);
+            return NextResponse.json(
+                { error: "Subscription is not active" },
                 { status: 403 }
             );
         }
