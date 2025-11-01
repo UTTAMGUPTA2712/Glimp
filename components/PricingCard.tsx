@@ -245,7 +245,7 @@ export default function PricingCard({
   const getButtonText = (isPro: boolean, user: any, isProcessing: boolean) => {
     if (!isPro) return "Contact Us";
     if (user?.plan === "pro-monthly") {
-      if (new Date(user.current_period_end) > new Date()) {
+      if (new Date(user.current_period_end) > new Date()&&user.status==="active") {
         return "Current Plan";
       }
       return "Renew Plan";

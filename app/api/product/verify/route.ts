@@ -90,13 +90,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (user.status !== 'active') {
-            console.log("User subscription status is not active:", user.status);
-            return NextResponse.json(
-                { error: "Subscription is not active" },
-                { status: 403 }
-            );
-        }
+        // if (user.status !== 'active') {
+        //     console.log("User subscription status is not active:", user.status);
+        //     return NextResponse.json(
+        //         { error: "Subscription is not active" },
+        //         { status: 403 }
+        //     );
+        // }
 
         // robust subscription check using Date objects
         if (user.current_period_end) {
