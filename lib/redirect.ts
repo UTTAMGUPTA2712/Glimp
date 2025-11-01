@@ -12,5 +12,6 @@ export async function handleDeviceRedirect(deviceToken: string, redirectUrl?: st
     const targetUrl = url.toString();
 
     // Open in a new popup window
-    window.open(targetUrl, '_blank', 'width=800,height=600,menubar=no,scrollbars=yes,resizable=yes');
+    // window.open(targetUrl, '_blank', 'width=800,height=600,menubar=no,scrollbars=yes,resizable=yes');
+    window.location.href = targetUrl;
 }

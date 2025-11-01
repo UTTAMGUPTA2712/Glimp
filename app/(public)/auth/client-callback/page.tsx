@@ -14,15 +14,16 @@ export default function ClientCallback() {
 
   const device_id = searchParams.get("device_id");
   const redirect_url = searchParams.get("redirect_url");
-  const redirect = async (access_token: string) => {
+  const redirect = async (access_token: string, user_id: string) => {
     if (device_id && redirect_url) {
+      console.log("Registering product license", { device_id, redirect_url });
       const data = await fetch("/api/product/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${access_token}`,
         },
-        body: JSON.stringify({ device_id }),
+        body: JSON.stringify({ device_id, user_id }),
       });
       const dataJson = await data.json();
       if (!data.ok) {
@@ -108,7 +109,7 @@ export default function ClientCallback() {
           });
 
           setStatus("Redirecting...");
-          redirect(accessToken);
+          await redirect(accessToken, data.user?.id!);
           return;
         }
 
@@ -120,9 +121,10 @@ export default function ClientCallback() {
           setError("Authentication failed");
           return;
         }
+        console.log({ data });
 
         if (data.session) {
-          redirect(data.session.access_token);
+          await redirect(data.session.access_token, data.session.user.id);
         }
       } catch (error) {
         console.error("Client callback error:", error);

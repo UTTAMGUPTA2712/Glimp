@@ -39,7 +39,7 @@ export default function LoginForm() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${session.access_token}`,
               },
-              body: JSON.stringify({ device_id }),
+              body: JSON.stringify({ device_id, user_id: session.user.id }),
             });
             const dataJson = await data.json();
             if (!data.ok) {
@@ -65,9 +65,9 @@ export default function LoginForm() {
             }
             console.log("Product registered successfully:", dataJson);
             handleDeviceRedirect(dataJson.device_token, redirect_url || "");
-          } else {
-            router.push("/dashboard");
+
           }
+          router.push("/dashboard");
           return;
         }
 
@@ -121,6 +121,7 @@ export default function LoginForm() {
       }
 
       console.log("OAuth initiated successfully");
+      setIsAuthenticating(false);
     } catch (error: any) {
       console.error("Login error:", error);
       setError(error.message || "Login failed");
@@ -132,7 +133,6 @@ export default function LoginForm() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Checking authentication status...</p>
         </div>
       </div>

@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
 
         // Get user from session
         const authHeader = request.headers.get('authorization');
-        const sessionCookie = request.cookies.get('sb-access-token') ||
-            request.cookies.get(supabaseAuthTokenKey);
+        const sessionCookie = request?.cookies?.get('sb-access-token') ||
+            request?.cookies?.get(supabaseAuthTokenKey);
 
         if (!sessionCookie && !authHeader) {
             console.error('No authentication found');
@@ -56,10 +56,6 @@ export async function POST(request: NextRequest) {
         if (error && error.code === 'PGRST116') {
             console.error('Supabase error fetching user:', error);
             return NextResponse.json({ error: 'No Plan Subscribed', device_token: deviceToken }, { status: 403 });
-        }
-
-        if (!data.razorpay_subscription_id) {
-            return NextResponse.json({ error: 'Missing subscription', device_token: deviceToken }, { status: 403 });
         }
 
         const { error: updateError } = await supabase
