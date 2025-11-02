@@ -15,7 +15,6 @@ export default function Footer() {
             contact@goglimp.com
             </p>
           </div>
-
           {/* Product */}
           <div>
             <h4 className="font-semibold mb-4">Product</h4>
