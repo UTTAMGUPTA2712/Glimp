@@ -12,7 +12,7 @@ export default function Footer() {
               AI-powered interview assistant helping you land your dream job.
             </p>
             <p className="text-gray-400 text-sm">
-              contact@glimp.ai
+            contact@goglimp.com
             </p>
           </div>
 
@@ -40,7 +40,7 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-gray-400">
               <li><Link href="/support" className="hover:text-white">Help Center</Link></li>
-              <li><a href="mailto:support@glimp.ai" className="hover:text-white">Contact Us</a></li>
+              <li><a href="mailto:contact@goglimp.com" className="hover:text-white">Contact Us</a></li>
             </ul>
           </div>
         </div>

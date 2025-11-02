@@ -52,6 +52,9 @@ export default function Header() {
             <Link href="/support" className="text-gray-600 hover:text-gray-900">
               Support
             </Link>
+            <Link href="/legal" className="text-gray-600 hover:text-gray-900">
+              Legal
+            </Link>
             {session ? (
               <>
                 <Link
@@ -117,6 +120,13 @@ export default function Header() {
                 onClick={closeMobileMenu}
               >
                 Support
+              </Link>
+              <Link
+                href="/legal"
+                className="text-gray-600 hover:text-gray-900 px-4 py-2"
+                onClick={closeMobileMenu}
+              >
+                Legal
               </Link>
               {session ? (
                 <>

@@ -130,12 +130,8 @@ export const supportQAs = [
     answer: "Visit your profile page where you can change your subscription plan. Changes take effect at your next billing cycle."
   },
   {
-    question: "Can I get a refund?",
-    answer: "We offer a 14-day money-back guarantee for new Pro subscriptions. Contact support for refund requests."
-  },
-  {
     question: "Is there a mobile app available?",
-    answer: "Currently, Glimp is available as a web application and desktop toolbar. A mobile app is in development."
+    answer: "No it is not available yet"
   },
   {
     question: "How do I delete my account?",
