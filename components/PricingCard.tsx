@@ -308,7 +308,7 @@ export default function PricingCard({
             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
         }`}
         onClick={handlePayment}
-        disabled={(user?.plan && isPro) || isProcessing}
+        disabled={isProcessing}
       >
         {getButtonText(isPro, user, isProcessing)}
       </button>
