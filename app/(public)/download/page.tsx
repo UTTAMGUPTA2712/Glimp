@@ -16,17 +16,39 @@ export default function DownloadPage() {
             </p>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
+              {/* Windows */}
               <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Windows</h3>
-                <button className="btn btn-primary w-full">Download for Windows</button>
+                <h3 className="text-lg font-semibold mb-2 flex items-center justify-center gap-2">
+                  Windows
+                  <span className="text-sm font-normal text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md">
+                    Beta
+                  </span>
+                </h3>
+                <button className="btn btn-primary w-full mt-2">
+                  Download for Windows
+                </button>
               </div>
-              <div className="bg-gray-50 rounded-lg p-6">
+
+              {/* macOS */}
+              <div className="bg-gray-50 rounded-lg p-6 opacity-60">
                 <h3 className="text-lg font-semibold mb-4">macOS</h3>
-                <button className="btn btn-primary w-full">Download for Mac</button>
+                <button
+                  disabled
+                  className="btn btn-primary w-full cursor-not-allowed bg-gray-300 text-gray-600 border-none"
+                >
+                  Coming Soon
+                </button>
               </div>
-              <div className="bg-gray-50 rounded-lg p-6">
+
+              {/* Linux */}
+              <div className="bg-gray-50 rounded-lg p-6 opacity-60">
                 <h3 className="text-lg font-semibold mb-4">Linux</h3>
-                <button className="btn btn-primary w-full">Download for Linux</button>
+                <button
+                  disabled
+                  className="btn btn-primary w-full cursor-not-allowed bg-gray-300 text-gray-600 border-none"
+                >
+                  Coming Soon
+                </button>
               </div>
             </div>
 
